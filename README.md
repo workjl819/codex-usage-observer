@@ -37,7 +37,7 @@ previous completed request.
 Start everything with one command:
 
 ```bash
-python3 /Users/jianglei/my-workspace/codex-plugins/codex-usage-observer/start.py
+python3 start.py
 ```
 
 It will refresh the SQLite database first, then start the dashboard at:
@@ -52,8 +52,8 @@ dashboard will auto-refresh on the same interval.
 You can still run the two steps separately when needed:
 
 ```bash
-python3 /Users/jianglei/my-workspace/codex-plugins/codex-usage-observer/collector.py
-python3 /Users/jianglei/my-workspace/codex-plugins/codex-usage-observer/dashboard.py
+python3 collector.py
+python3 dashboard.py
 ```
 
 You can filter the dashboard by:
