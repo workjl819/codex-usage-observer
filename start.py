@@ -12,14 +12,14 @@ from dashboard import HOST, PORT, ThreadingHTTPServer, Handler
 REFRESH_INTERVAL_SECONDS = 5
 
 
-def run_ingest_loop() -> None:
-    while True:
+def run_ingest_loop(stop_event: threading.Event) -> None:
+    while not stop_event.is_set():
         scanned, written = ingest_all()
         print(
             f"[ingest] scanned={scanned} upserted={written} interval={REFRESH_INTERVAL_SECONDS}s",
             flush=True,
         )
-        time.sleep(REFRESH_INTERVAL_SECONDS)
+        stop_event.wait(REFRESH_INTERVAL_SECONDS)
 
 
 def main() -> int:
@@ -27,11 +27,18 @@ def main() -> int:
     print(f"Database: {DB_PATH}")
     print(f"Scanned session files: {scanned}")
     print(f"Upserted completed turns: {written}")
-    worker = threading.Thread(target=run_ingest_loop, daemon=True)
+    stop_event = threading.Event()
+    worker = threading.Thread(target=run_ingest_loop, args=(stop_event,), daemon=True)
     worker.start()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Dashboard: http://{HOST}:{PORT}")
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nShutting down Codex Usage Observer...")
+    finally:
+        stop_event.set()
+        server.server_close()
     return 0
 
 

@@ -227,7 +227,12 @@ def main() -> int:
         )
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Dashboard: http://{HOST}:{PORT}")
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nShutting down Codex Usage Observer...")
+    finally:
+        server.server_close()
     return 0
 
 
